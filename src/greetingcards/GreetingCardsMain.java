@@ -8,6 +8,10 @@ package greetingcards;
 import greetingcards.Interfaces.IGreetingCard;
 import greetingcards.Interfaces.IPrintableGreetingCard;
 import java.util.ArrayList;
+import javax.swing.JOptionPane;
+import com.google.common.base.Strings;
+import java.awt.HeadlessException;
+import java.io.PrintStream;
 
 /**
  *
@@ -19,13 +23,51 @@ public class GreetingCardsMain {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        ArrayList<IGreetingCard> cards = new ArrayList<>();
 
+        String selectedValue = selectExecutionMode();
+
+        if (selectedValue == "UI") {
+            ExecuteUIMode();
+        } else if (selectedValue == "Console example") {
+            ExecuteConsoleMode();
+        }
+    }
+
+    private static void ExecuteUIMode() {       
+        StringBuilder outputStringBuilder = new StringBuilder();
+         //Redirect System.out to a stringBuilder
+        PrintStream printStream = new PrintStream(new CustomOutputStream(outputStringBuilder));
+        System.setOut(printStream);
+        
+        String recipient = AskForInputAndRetry("Please enter recipient:");
+        String sender = AskForInputAndRetry("Please enter sender:");
+        
+        if (Strings.isNullOrEmpty(recipient) || Strings.isNullOrEmpty(sender)) {
+            //I am adding a very simple validation in order to avoid errors in later stage.
+            JOptionPane.showMessageDialog(null, "Recipient and sender are mandatory. Exiting application.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        Object[] possibleValues = GreetingCardType.values();
+        Object cardType = JOptionPane.showInputDialog(null,
+                "Please select a greeting card", "Greeting card selection",
+                JOptionPane.INFORMATION_MESSAGE, null,
+                possibleValues, possibleValues[0]);
+        
+        IGreetingCard card = GreetingCardFactory.Create(recipient, sender, (GreetingCardType) cardType);
+        card.print();
+        
+        JOptionPane.showMessageDialog(null, outputStringBuilder.toString());      
+    }
+
+    private static void ExecuteConsoleMode() {
+        ArrayList<IGreetingCard> cards = new ArrayList<>();
+        
         //Creating Birthday, Christmas and Wedding greeting cards
         cards.add(GreetingCardFactory.Create("Recipient A", "Sender A", GreetingCardType.Birthday));
         cards.add(GreetingCardFactory.Create("Recipient B", "Sender B", GreetingCardType.Christmas));
         cards.add(GreetingCardFactory.Create("Recipient C", "Sender C", GreetingCardType.Wedding));
-
+        
         //Print X times each card to test random saludations, verses and closings.
         cards.forEach((card) -> {
             PrintGreetingCardXTimes(card, 2);
@@ -35,9 +77,7 @@ public class GreetingCardsMain {
     private static void PrintGreetingCardXTimes(IGreetingCard card, int quantity) {
         System.out.println(card.getClass().getSimpleName());
 
-        PrintCardXTimes(quantity, () -> card.salutation());
-        PrintCardXTimes(quantity, () -> card.verse());
-        PrintCardXTimes(quantity, () -> card.closing());
+        PrintCardXTimes(quantity, () -> card.print());
 
         System.out.println("------------------------------------------");
     }
@@ -47,5 +87,25 @@ public class GreetingCardsMain {
             printableGreetingCard.Print();
             System.out.print("\n\n");
         }
+    }
+
+    private static String selectExecutionMode() {
+        Object[] possibleValues = {"UI", "Console example"};
+        Object selectedValue = JOptionPane.showInputDialog(null,
+                "Select execution mode", "Execution mode selection",
+                JOptionPane.INFORMATION_MESSAGE, null,
+                possibleValues, possibleValues[0]);
+
+        return selectedValue == null ? "" : selectedValue.toString();
+    }
+
+    private static String AskForInputAndRetry(String message) {
+        int retries = 0;
+        String input;
+        do {
+            input = JOptionPane.showInputDialog(message);
+            retries++;
+        } while (Strings.isNullOrEmpty(input) && retries < 3);
+        return input;
     }
 }

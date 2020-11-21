@@ -3,17 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package greetingcards.Interfaces;
+package greetingcards;
 
 /**
  *
  * @author Maximiliano Herrera
  */
-public interface IGreetingCard {
-
-    String getRecipient();
-
-    String getSender();
-
-    void print();
+public enum GreetingType {
+   Salutation,
+   Verse,
+   Closing
 }

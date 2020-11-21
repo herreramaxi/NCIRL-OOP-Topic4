@@ -54,28 +54,34 @@ public abstract class GreetingCard implements IGreetingCardBuilder {
     protected abstract void initialiseVerses();
 
     protected abstract void initialiseClosings();
-  
-    //choose a random salutation from the array and print alongside the recipient name  
+
+    //Template method print
     @Override
-    public void salutation() {
+    public void print() {
+        salutation();
+        verse();
+        closing();
+    }
+
+    //choose a random salutation from the array and print alongside the recipient name     
+    protected void salutation() {
         String saludation = this.getRandomFrom(saludations);
 
-        StringBuilder sb = new StringBuilder(this.recipient).append(":\n");
-        sb.append(saludation);
+        StringBuilder sb = new StringBuilder(saludation).append(" ");
+        sb.append(this.recipient).append(",\n");
 
         System.out.print(sb.toString());
     }
 
-    //choose and print a random verse from the array  
-    @Override
-    public void verse() {
+    //choose and print a random verse from the array    
+    protected void verse() {
         String verse = this.getRandomFrom(verses);
         System.out.print(verse);
+        System.out.print("\n");
     }
 
     //choose a random closing from the array and print alongside the sender sender
-    @Override
-    public void closing() {
+    protected void closing() {
         String closing = this.getRandomFrom(closings);
         StringBuilder sb = new StringBuilder(closing).append("\n");
         sb.append(this.sender);
