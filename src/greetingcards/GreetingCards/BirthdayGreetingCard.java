@@ -14,7 +14,7 @@ public class BirthdayGreetingCard extends GreetingCard {
    public BirthdayGreetingCard(String recipient, String sender) {
         super(recipient, sender);
     }
-
+   
     @Override
     protected void initialiseSaludations() {
         this.AddSaludation("Birthday Saludation 1");
